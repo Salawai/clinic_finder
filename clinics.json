@@ -6,7 +6,9 @@
     "zip": "78701",
     "phone": "512-555-1234",
     "lat": 30.2672,
-    "lng": -97.7431
+    "lng": -97.7431,
+    "services": "Primary care, Mental health",
+    "cost": "Sliding scale"
   },
   {
     "name": "Free Medical Center",
@@ -15,7 +17,9 @@
     "zip": "75201",
     "phone": "214-555-5678",
     "lat": 32.7767,
-    "lng": -96.797
+    "lng": -96.797,
+    "services": "Primary care, Women’s health",
+    "cost": "Free"
   },
   {
     "name": "Sliding Scale Clinic",
@@ -24,6 +28,9 @@
     "zip": "77002",
     "phone": "713-555-9012",
     "lat": 29.7604,
-    "lng": -95.3698
+    "lng": -95.3698,
+    "services": "Dental, Pediatric care",
+    "cost": "Low cost"
   }
 ]
+
