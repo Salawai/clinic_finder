@@ -13,7 +13,7 @@ function searchClinics() {
   const query = document.getElementById("searchInput").value.toLowerCase().trim();
   if (!query) return;
 
-  fetch("clinics.json")
+  fetch("http://localhost:3000/api/clinics")
     .then((res) => res.json())
     .then((data) => {
       const filtered = data.filter(c =>
