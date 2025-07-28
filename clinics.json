@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Community Health Clinic",
+    "address": "123 Main St, Austin, TX",
+    "city": "Austin",
+    "zip": "78701",
+    "phone": "512-555-1234",
+    "lat": 30.2672,
+    "lng": -97.7431
+  },
+  {
+    "name": "Free Medical Center",
+    "address": "456 Elm St, Dallas, TX",
+    "city": "Dallas",
+    "zip": "75201",
+    "phone": "214-555-5678",
+    "lat": 32.7767,
+    "lng": -96.797
+  },
+  {
+    "name": "Sliding Scale Clinic",
+    "address": "789 Oak St, Houston, TX",
+    "city": "Houston",
+    "zip": "77002",
+    "phone": "713-555-9012",
+    "lat": 29.7604,
+    "lng": -95.3698
+  }
+]
