@@ -38,8 +38,14 @@ function displayClinics(clinics) {
 
   clinics.forEach(clinic => {
     const item = document.createElement("div");
-    item.className = "card mb-2 p-2";
-    item.innerHTML = `<strong>${clinic.name}</strong><br>${clinic.address}<br>Phone: ${clinic.phone}`;
+    item.className = "card mb-2 p-3";
+    item.innerHTML = `
+      <strong>${clinic.name}</strong><br>
+      ${clinic.address}<br>
+      <strong>Phone:</strong> ${clinic.phone}<br>
+      <strong>Services:</strong> ${clinic.services}<br>
+      <strong>Cost:</strong> ${clinic.cost}
+    `;
     list.appendChild(item);
 
     const marker = L.marker([clinic.lat, clinic.lng])
@@ -53,4 +59,14 @@ function displayClinics(clinics) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", initMap);
+document.addEventListener("DOMContentLoaded", () => {
+  initMap();
+
+  // Optional: Trigger search with Enter key
+  const input = document.getElementById("searchInput");
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      searchClinics();
+    }
+  });
+});
