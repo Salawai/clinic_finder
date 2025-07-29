@@ -4,14 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clinic Finder</title>
+
+  <!-- Bootstrap CSS -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
   />
+
+  <!-- Leaflet Map CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
+
+  <!-- Optional Favicon -->
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966485.png" />
+
   <style>
     body {
       padding: 20px;
@@ -26,6 +34,7 @@
   <div class="container">
     <h1 class="mb-4 text-center">Clinic Finder</h1>
 
+    <!-- Search + Filters -->
     <div class="d-flex flex-wrap gap-2 mb-3">
       <input
         id="searchInput"
@@ -52,11 +61,23 @@
       </select>
     </div>
 
+    <!-- Clinic List -->
     <div id="clinicList" class="mt-3"></div>
+
+    <!-- Map -->
     <div id="map"></div>
   </div>
 
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Your Frontend JS -->
   <script src="app.js"></script>
+
+  <noscript>
+    <div class="alert alert-danger text-center mt-4">
+      JavaScript is required for this site to function properly.
+    </div>
+  </noscript>
 </body>
 </html>
