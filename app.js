@@ -2,7 +2,7 @@ let map;
 let markers = [];
 
 function initMap() {
-  map = L.map("map").setView([30.2672, -97.7431], 6); // Default to Texas
+  map = L.map("map").setView([30.2672, -97.7431], 6); // Default view: Texas
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; OpenStreetMap contributors'
@@ -27,7 +27,7 @@ function displayClinics(clinics) {
   const list = document.getElementById("clinicList");
   list.innerHTML = "";
 
-  // Clear map markers
+  // Remove previous markers
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
@@ -59,14 +59,53 @@ function displayClinics(clinics) {
   }
 }
 
+function locateUser() {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      map.setView([lat, lng], 12);
+
+      const userMarker = L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup("📍 You are here")
+        .openPopup();
+
+      markers.push(userMarker);
+    },
+    (error) => {
+      console.error("Geolocation error:", error);
+      alert("Unable to retrieve your location.");
+    }
+  );
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initMap();
 
-  // Optional: Trigger search with Enter key
+  // Trigger search on Enter
   const input = document.getElementById("searchInput");
   input.addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
       searchClinics();
     }
   });
+
+  // Trigger search on button click
+  const searchBtn = document.getElementById("searchBtn");
+  if (searchBtn) {
+    searchBtn.addEventListener("click", searchClinics);
+  }
+
+  // Trigger location detection
+  const locateBtn = document.getElementById("locateBtn");
+  if (locateBtn) {
+    locateBtn.addEventListener("click", locateUser);
+  }
 });
