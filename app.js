@@ -2,7 +2,7 @@ let map;
 let markers = [];
 
 function initMap() {
-  map = L.map("map").setView([30.2672, -97.7431], 6); // Default view: Texas
+  map = L.map("map").setView([30.2672, -97.7431], 6); // Default to Texas
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; OpenStreetMap contributors'
@@ -11,14 +11,27 @@ function initMap() {
 
 function searchClinics() {
   const query = document.getElementById("searchInput").value.toLowerCase().trim();
-  if (!query) return;
+  const selectedService = document.getElementById("serviceFilter").value.toLowerCase();
+  const selectedCost = document.getElementById("costFilter").value.toLowerCase();
 
   fetch("https://clinic-finder-backend-s2pv.onrender.com/api/clinics")
     .then((res) => res.json())
     .then((data) => {
-      const filtered = data.filter(c =>
-        c.city.toLowerCase().includes(query) || c.zip.includes(query)
-      );
+      const filtered = data.filter(c => {
+        const matchesQuery =
+          !query ||
+          c.city.toLowerCase().includes(query) ||
+          c.zip.includes(query);
+
+        const matchesService =
+          !selectedService || c.services.toLowerCase().includes(selectedService);
+
+        const matchesCost =
+          !selectedCost || c.cost.toLowerCase().includes(selectedCost);
+
+        return matchesQuery && matchesService && matchesCost;
+      });
+
       displayClinics(filtered);
     });
 }
@@ -27,12 +40,12 @@ function displayClinics(clinics) {
   const list = document.getElementById("clinicList");
   list.innerHTML = "";
 
-  // Remove previous markers
+  // Clear previous markers
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
   if (clinics.length === 0) {
-    list.innerHTML = "<p>No clinics found for that location.</p>";
+    list.innerHTML = "<p>No clinics found for that location or filters.</p>";
     return;
   }
 
@@ -72,12 +85,12 @@ function locateUser() {
 
       map.setView([lat, lng], 12);
 
-      const userMarker = L.marker([lat, lng])
+      const marker = L.marker([lat, lng])
         .addTo(map)
         .bindPopup("📍 You are here")
         .openPopup();
 
-      markers.push(userMarker);
+      markers.push(marker);
     },
     (error) => {
       console.error("Geolocation error:", error);
@@ -89,23 +102,14 @@ function locateUser() {
 document.addEventListener("DOMContentLoaded", () => {
   initMap();
 
-  // Trigger search on Enter
-  const input = document.getElementById("searchInput");
-  input.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      searchClinics();
-    }
+  document.getElementById("searchBtn").addEventListener("click", searchClinics);
+  document.getElementById("searchInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") searchClinics();
   });
 
-  // Trigger search on button click
-  const searchBtn = document.getElementById("searchBtn");
-  if (searchBtn) {
-    searchBtn.addEventListener("click", searchClinics);
-  }
+  document.getElementById("locateBtn").addEventListener("click", locateUser);
 
-  // Trigger location detection
-  const locateBtn = document.getElementById("locateBtn");
-  if (locateBtn) {
-    locateBtn.addEventListener("click", locateUser);
-  }
+  // Optionally re-filter when dropdowns change
+  document.getElementById("serviceFilter").addEventListener("change", searchClinics);
+  document.getElementById("costFilter").addEventListener("change", searchClinics);
 });
