@@ -1,2 +1,21 @@
-node_modules/
+# dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# dotenv files (if you use .env for secrets later)
 .env
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# system files
+.DS_Store
+Thumbs.db
+
+# filtered large input file
+backend/data/hrsa_full.json
+
+# others
+*.log
