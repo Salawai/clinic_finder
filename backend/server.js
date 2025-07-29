@@ -4,26 +4,34 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Enable CORS for frontend-backend communication
 app.use(cors());
 
-app.get("/api/clinics", (req, res) => {
-  const filePath = path.join(__dirname, "data", "clinics.json");
+// Load clinic data
+const dataPath = path.join(__dirname, "data", "clinics.json");
+let clinicsData = [];
 
-  fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) {
-      return res.status(500).json({ error: "Unable to read clinic data" });
-    }
+try {
+  const rawData = fs.readFileSync(dataPath);
+  clinicsData = JSON.parse(rawData);
+  console.log("✅ Clinic data loaded successfully");
+} catch (err) {
+  console.error("❌ Failed to load clinic data:", err);
+}
 
-    try {
-      const clinics = JSON.parse(data);
-      res.json(clinics);
-    } catch (err) {
-      res.status(500).json({ error: "Invalid JSON format" });
-    }
-  });
+// Root route for sanity check
+app.get("/", (req, res) => {
+  res.send("✅ Backend is running. Visit /api/clinics to get clinic data.");
 });
 
-const PORT = process.env.PORT || 3000;
+// API endpoint to serve clinics
+app.get("/api/clinics", (req, res) => {
+  res.json(clinicsData);
+});
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`🚀 Server listening on port ${PORT}`);
 });
