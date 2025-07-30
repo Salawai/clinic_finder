@@ -38,7 +38,7 @@ CLINIC_FINDER_CLEAN
 │   ├── package.json
 │   └── .env (optional)
 │
-├── docs
+├── docs (frontend)
 │   ├── index.html
 │   ├── app.js
 │   ├── manifest.json
