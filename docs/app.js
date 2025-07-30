@@ -134,7 +134,7 @@ async function askAI(prompt) {
   chatBox.innerText = "🤖 Thinking...";
 
   try {
-    const response = await fetch("https://6ca416a7-55f8-4207-86d6-24a2a48df650-00-2a2jvneenijrt.riker.replit.dev/ask", {
+    const response = await fetch("https://clinic-finder-ai-proxy.salawaiazhagan.repl.co/ask", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
