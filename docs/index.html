@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clinic Finder</title>
+  <title>CareMap – Free & Low-Cost Clinics</title>
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 
   <!-- Leaflet Map CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <!-- Favicon -->
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966485.png" />
@@ -21,6 +24,7 @@
   <style>
     body {
       padding: 20px;
+      background-color: #f8f9fa;
     }
 
     #map {
@@ -28,6 +32,7 @@
       height: 100%;
       border-radius: 8px;
       min-height: 300px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
     }
 
     .clinic-card {
@@ -35,17 +40,27 @@
     }
 
     .clinic-card:hover {
-      background-color: #f5f5f5;
-    }
-
-    .card-body p {
-      margin-bottom: 0.3rem;
+      background-color: #f0f8ff;
     }
 
     #loadingSpinner {
       text-align: center;
       margin-bottom: 1rem;
       font-weight: bold;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .logo {
+      height: 48px;
+      margin-right: 10px;
     }
 
     @media (max-width: 768px) {
@@ -67,7 +82,10 @@
 </head>
 <body>
   <div class="container-fluid">
-    <h1 class="mb-4 text-center">Clinic Finder</h1>
+    <div class="d-flex justify-content-center align-items-center mb-4">
+      <img src="https://cdn-icons-png.flaticon.com/512/2966/2966485.png" alt="Logo" class="logo" />
+      <h1 class="text-primary fw-bold m-0">CareMap</h1>
+    </div>
 
     <!-- Search + Filters -->
     <div class="d-flex flex-wrap gap-2 mb-3 justify-content-center">
@@ -99,7 +117,7 @@
 
     <!-- Ask AI Section -->
     <div class="mt-4 w-100" style="max-width: 600px; margin: 0 auto;">
-      <h5>Ask the AI</h5>
+      <h5><i class="fas fa-robot text-primary me-1"></i>Ask the AI <small class="text-muted">(Work in progress)</small></h5>
       <div class="d-flex gap-2">
         <input id="askInput" class="form-control" placeholder="e.g. Find a women’s health clinic in Houston" />
         <button id="askBtn" class="btn btn-outline-primary">Ask</button>
@@ -121,10 +139,18 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer>
+    <p>
+      💙 Built with care | <a href="https://github.com/senthur24/clinic-finder" target="_blank">GitHub</a> |
+      <span class="text-muted">PWA Enabled</span>
+    </p>
+  </footer>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Your App Logic -->
+  <!-- App Logic -->
   <script src="app.js"></script>
 
   <!-- Locate Me Script -->
