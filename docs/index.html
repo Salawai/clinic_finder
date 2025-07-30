@@ -127,6 +127,39 @@
   <!-- Your App Logic -->
   <script src="app.js"></script>
 
+  <!-- Locate Me Script -->
+  <script>
+    document.getElementById("locateBtn").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await res.json();
+
+          const cityOrZip =
+            data.address.postcode || data.address.city || data.address.town || data.address.village;
+
+          if (cityOrZip) {
+            document.getElementById("searchInput").value = cityOrZip;
+          } else {
+            alert("Could not determine location.");
+          }
+        } catch (err) {
+          console.error("Error fetching location:", err);
+          alert("Something went wrong while retrieving your location.");
+        }
+      });
+    });
+  </script>
+
   <!-- Service Worker (PWA) -->
   <script>
     if ("serviceWorker" in navigator) {
