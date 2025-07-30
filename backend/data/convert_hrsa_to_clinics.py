@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 
 def clean(value, fallback=""):
     if value is None:
@@ -7,31 +8,73 @@ def clean(value, fallback=""):
     val = str(value).strip()
     return fallback if val.lower() == "nan" else val
 
-def infer_cost(row):
-    if (
-        clean(row.get("Health Center Type")) == "Federally Qualified Health Center (FQHC)"
-        or clean(row.get("Health Center Location Type Description")) == "Mobile Van"
-        or clean(row.get("Health Center Operator Description")) == "Health Center/Applicant"
-    ):
-        return "Sliding Scale (based on income)"
-    return "Unknown"
+def infer_insurance_payment(row):
+    payments = []
+    type_ = clean(row.get("Health Center Type"))
+    location_type = clean(row.get("Health Center Location Type Description"))
+    operator = clean(row.get("Health Center Operator Description"))
+    medicare = clean(row.get("FQHC Site Medicare Billing Number"))
+    npi = clean(row.get("FQHC Site NPI Number"))
+
+    if type_ == "Federally Qualified Health Center (FQHC)" or location_type == "Mobile Van" or operator == "Health Center/Applicant":
+        payments.append("Sliding Scale (based on income)")
+    if re.fullmatch(r"[A-Za-z0-9]{6,}", medicare):  # crude Medicare Billing Number check
+        payments.append("Accepts Medicare")
+    if re.fullmatch(r"\d{10}", npi):  # NPI = 10-digit number
+        payments.append("Accepts Medicaid")
+
+    return payments if payments else ["Unknown"]
 
 def infer_services(row):
-    desc = clean(row.get("Health Center Service Delivery Site Location Setting Description")).lower()
-    if "dental" in desc:
-        return "Dental"
-    elif "mental" in desc or "behavioral" in desc:
-        return "Behavioral Health"
-    elif "women" in desc:
-        return "Women's Health"
-    elif "primary" in desc:
-        return "Primary Care"
-    elif "clinic" in desc:
-        return "General Clinic"
-    else:
-        return "Other"
+    fields_to_check = [
+        clean(row.get("Site Name")).lower(),
+        clean(row.get("Health Center Name")).lower(),
+        clean(row.get("Health Center Service Delivery Site Location Setting Description")).lower()
+    ]
+    joined = " ".join(fields_to_check)
 
-def process_hrsa_csv(input_csv, output_json):
+    services = []
+
+    if re.search(r"mental|behavioral", joined):
+        services.append("Behavioral Health")
+    if re.search(r"women", joined):
+        services.append("Women's Health")
+    if re.search(r"dental", joined):
+        services.append("Dental")
+    if re.search(r"vision|eye", joined):
+        services.append("Vision")
+    if re.search(r"primary", joined):
+        services.append("Primary Care")
+    if re.search(r"urgent|walk[-\s]?in", joined):
+        services.append("Urgent Care")
+    if re.search(r"immun|vaccine", joined):
+        services.append("Immunizations")
+    if re.search(r"family", joined):
+        services.append("Family Medicine")
+    if re.search(r"repro|obgyn", joined):
+        services.append("Reproductive Health")
+
+    if not services:
+        services.append("General Clinic")
+
+    return sorted(set(services))
+
+def infer_hours_label(hours_str):
+    try:
+        hours = float(hours_str)
+    except (TypeError, ValueError):
+        return "Unknown"
+
+    if hours <= 10:
+        return "Very Limited"
+    elif hours <= 24:
+        return "Limited Availability"
+    elif hours <= 40:
+        return "Standard Hours"
+    else:
+        return "Extended Hours"
+
+def convert_hrsa_to_clinics(input_csv, output_json):
     clinics = []
 
     with open(input_csv, newline='', encoding='utf-8') as csvfile:
@@ -50,7 +93,9 @@ def process_hrsa_csv(input_csv, output_json):
                 lat = float(row.get("Geocoding Artifact Address Primary Y Coordinate"))
                 lng = float(row.get("Geocoding Artifact Address Primary X Coordinate"))
             except (TypeError, ValueError):
-                continue  # Skip if lat/lng are missing or invalid
+                continue
+
+            hours_raw = clean(row.get("Operating Hours per Week"))
 
             clinic = {
                 "name": clean(row.get("Site Name")),
@@ -60,10 +105,10 @@ def process_hrsa_csv(input_csv, output_json):
                 "phone": clean(row.get("Site Telephone Number")),
                 "lat": lat,
                 "lng": lng,
-                "cost": infer_cost(row),
+                "insurance_payment": infer_insurance_payment(row),
                 "services": infer_services(row),
-                "hours": clean(row.get("Operating Hours per Week"), "Unknown"),
-                "website": clean(row.get("Site Web Address"), "")
+                "hours_label": infer_hours_label(hours_raw),
+                "website": clean(row.get("Site Web Address"))
             }
             clinics.append(clinic)
 
@@ -73,4 +118,4 @@ def process_hrsa_csv(input_csv, output_json):
     print(f"✅ Wrote {len(clinics)} clinics to {output_json}")
 
 # ✅ Run the conversion
-process_hrsa_csv("Health_Center_Service_Delivery_and_LookAlike_Sites.csv", "clinics.json")
+convert_hrsa_to_clinics("Health_Center_Service_Delivery_and_LookAlike_Sites.csv", "clinics.json")
