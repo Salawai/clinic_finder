@@ -27,6 +27,7 @@
       width: 100%;
       height: 100%;
       border-radius: 8px;
+      min-height: 300px; /* Ensures visibility on mobile portrait */
     }
 
     .clinic-card {
@@ -39,6 +40,23 @@
 
     .card-body p {
       margin-bottom: 0.3rem;
+    }
+
+    /* Responsive behavior for small screens */
+    @media (max-width: 768px) {
+      .row.flex-column-on-mobile {
+        flex-direction: column;
+        height: auto !important;
+      }
+
+      .map-column,
+      .list-column {
+        height: auto !important;
+      }
+
+      #map {
+        height: 300px !important;
+      }
     }
   </style>
 </head>
@@ -68,12 +86,12 @@
       </select>
     </div>
 
-    <!-- Layout: Map + Clinic List Side-by-Side -->
-    <div class="row" style="height: 600px;">
-      <div class="col-md-6">
+    <!-- Layout: Map + Clinic List -->
+    <div class="row flex-column-on-mobile" style="height: 600px;">
+      <div class="col-md-6 map-column">
         <div id="map"></div>
       </div>
-      <div class="col-md-6 overflow-auto" style="height: 100%;">
+      <div class="col-md-6 list-column overflow-auto" style="height: 100%;">
         <div id="clinicList"></div>
       </div>
     </div>
@@ -82,10 +100,10 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- App JS -->
+  <!-- Your App Logic -->
   <script src="app.js"></script>
 
-  <!-- PWA Service Worker Registration -->
+  <!-- Service Worker (PWA) -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
