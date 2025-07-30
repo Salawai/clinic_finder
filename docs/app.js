@@ -1,3 +1,4 @@
+// app.js
 let map;
 let markers = [];
 
@@ -39,7 +40,7 @@ function searchClinics() {
       displayClinics(filtered);
     })
     .catch(err => {
-      console.error("❌ Failed to fetch clinics:", err);
+      console.error("\u274C Failed to fetch clinics:", err);
       document.getElementById("clinicList").innerHTML = "<p>Error loading clinic data.</p>";
     })
     .finally(() => showLoading(false));
@@ -59,7 +60,7 @@ function displayClinics(clinics) {
 
   clinics.forEach((clinic, index) => {
     const item = document.createElement("div");
-    item.className = "card mb-2 p-3";
+    item.className = "card mb-2 p-3 clinic-card";
     item.id = `clinic-${index}`;
 
     const servicesText = Array.isArray(clinic.services) ? clinic.services.join(", ") : clinic.services || "N/A";
@@ -85,11 +86,11 @@ function displayClinics(clinics) {
         .addTo(map)
         .bindPopup(`<b>${clinic.name}</b><br>${clinic.address}`)
         .on('click', () => {
-          document.getElementById(`clinic-${index}`).scrollIntoView({ behavior: "smooth", block: "start" });
-          document.getElementById(`clinic-${index}`).classList.add("border", "border-primary");
-          setTimeout(() => {
-            document.getElementById(`clinic-${index}`).classList.remove("border", "border-primary");
-          }, 2000);
+          const card = document.getElementById(`clinic-${index}`);
+          card.scrollIntoView({ behavior: "smooth", block: "start" });
+          card.classList.add("highlight-card");
+          setTimeout(() => card.classList.remove("highlight-card"), 2000);
+          map.setView([clinic.lat, clinic.lng], 12);
         });
 
       markers.push(marker);
@@ -116,7 +117,7 @@ function locateUser() {
 
       const marker = L.marker([lat, lng])
         .addTo(map)
-        .bindPopup("📍 You are here")
+        .bindPopup("\ud83d\udccd You are here")
         .openPopup();
 
       markers.push(marker);
@@ -128,30 +129,26 @@ function locateUser() {
   );
 }
 
-// ✅ Safe AI assistant fetch (calls Render backend proxy)
 async function askAI(prompt) {
   const chatBox = document.getElementById("aiResponse");
-  chatBox.innerText = "🤖 Thinking...";
+  chatBox.innerText = "\ud83e\udde0 Thinking...";
 
   try {
     const response = await fetch("https://clinic-finder-backend-s2pv.onrender.com/ask", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt })
     });
 
     const data = await response.json();
     const answer = data.answer || "Sorry, I couldn’t understand that.";
-    chatBox.innerText = `🤖 ${answer}`;
+    chatBox.innerText = `\ud83e\udde0 ${answer}`;
   } catch (err) {
     console.error("AI error:", err);
-    chatBox.innerText = "❌ AI assistant failed to respond.";
+    chatBox.innerText = "\u274C AI assistant failed to respond.";
   }
 }
 
-// 🌐 Initialize everything
 document.addEventListener("DOMContentLoaded", () => {
   initMap();
   document.getElementById("searchBtn").addEventListener("click", searchClinics);
