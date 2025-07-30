@@ -1,6 +1,6 @@
 {
-  "name": "Clinic Finder",
-  "short_name": "Clinics",
+  "name": "CareMap - Free & Low-Cost Clinics",
+  "short_name": "CareMap",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",

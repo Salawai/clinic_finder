@@ -1,21 +1,35 @@
-# dependencies
+# === Node dependencies (backend) ===
+# These are recreated with npm install — no need to track them
 backend/node_modules/
-frontend/node_modules/
 
-# dotenv files (if you use .env for secrets later)
-.env
+# === Python stuff ===
+# Ignore Python cache files from your data scripts
+__pycache__/
+*.pyc
 
-# logs
+# === Logs and debug junk ===
+# Generated automatically when things crash — don’t need to keep them
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# system files
+# === Secret config files ===
+# In case you add environment vars later (like API keys)
+.env
+
+# === OS clutter ===
+# Mac and Windows love dropping these everywhere
 .DS_Store
 Thumbs.db
 
-# filtered large input file
-backend/data/hrsa_full.json
+# === Raw data ===
+# Keep your filtered clinics.json, but skip large input datasets
+backend/data/Health_Center_Service_Delivery_and_LookAlike_Sites.csv
+backend/data/hrsa_full.json  # if used again in the future
 
-# others
-*.log
+# === Optional junk ===
+# Random backup, temp, or scratch files
+*.bak
+*.tmp
+*.old

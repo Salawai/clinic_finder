@@ -2,12 +2,14 @@ import csv
 import json
 import re
 
+# Helper to clean any string value (e.g., remove whitespace or handle "nan"/None)
 def clean(value, fallback=""):
     if value is None:
         return fallback
     val = str(value).strip()
     return fallback if val.lower() == "nan" else val
 
+# Guess what kind of insurance this clinic probably accepts
 def infer_insurance_payment(row):
     payments = []
     type_ = clean(row.get("Health Center Type"))
@@ -16,15 +18,17 @@ def infer_insurance_payment(row):
     medicare = clean(row.get("FQHC Site Medicare Billing Number"))
     npi = clean(row.get("FQHC Site NPI Number"))
 
+    # If it's an FQHC or mobile van or health center operator, assume sliding scale fees
     if type_ == "Federally Qualified Health Center (FQHC)" or location_type == "Mobile Van" or operator == "Health Center/Applicant":
         payments.append("Sliding Scale (based on income)")
-    if re.fullmatch(r"[A-Za-z0-9]{6,}", medicare):  # crude Medicare Billing Number check
+    if re.fullmatch(r"[A-Za-z0-9]{6,}", medicare):
         payments.append("Accepts Medicare")
-    if re.fullmatch(r"\d{10}", npi):  # NPI = 10-digit number
+    if re.fullmatch(r"\d{10}", npi):
         payments.append("Accepts Medicaid")
 
     return payments if payments else ["Unknown"]
 
+# Look through name/description fields to guess clinic services
 def infer_services(row):
     fields_to_check = [
         clean(row.get("Site Name")).lower(),
@@ -32,7 +36,6 @@ def infer_services(row):
         clean(row.get("Health Center Service Delivery Site Location Setting Description")).lower()
     ]
     joined = " ".join(fields_to_check)
-
     services = []
 
     if re.search(r"mental|behavioral", joined):
@@ -59,6 +62,7 @@ def infer_services(row):
 
     return sorted(set(services))
 
+# Label hours of operation in human-friendly categories
 def infer_hours_label(hours_str):
     try:
         hours = float(hours_str)
@@ -74,12 +78,14 @@ def infer_hours_label(hours_str):
     else:
         return "Extended Hours"
 
+# Main converter — takes in raw CSV and writes out a cleaned-up JSON list of clinics
 def convert_hrsa_to_clinics(input_csv, output_json):
     clinics = []
 
     with open(input_csv, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
+            # Only include active clinics in supported US states
             if clean(row.get("Site Status Description")) != "Active":
                 continue
             if clean(row.get("Site State Abbreviation")) not in {
@@ -89,6 +95,7 @@ def convert_hrsa_to_clinics(input_csv, output_json):
             }:
                 continue
 
+            # Skip clinics with bad or missing lat/lng coordinates
             try:
                 lat = float(row.get("Geocoding Artifact Address Primary Y Coordinate"))
                 lng = float(row.get("Geocoding Artifact Address Primary X Coordinate"))
@@ -97,6 +104,7 @@ def convert_hrsa_to_clinics(input_csv, output_json):
 
             hours_raw = clean(row.get("Operating Hours per Week"))
 
+            # Build final clinic object
             clinic = {
                 "name": clean(row.get("Site Name")),
                 "address": f"{clean(row.get('Site Address'))}, {clean(row.get('Site City'))}, {clean(row.get('Site State Abbreviation'))} {clean(row.get('Site Postal Code'))}",
@@ -110,6 +118,7 @@ def convert_hrsa_to_clinics(input_csv, output_json):
                 "hours_label": infer_hours_label(hours_raw),
                 "website": clean(row.get("Site Web Address"))
             }
+
             clinics.append(clinic)
 
     with open(output_json, "w", encoding='utf-8') as f:
@@ -117,5 +126,8 @@ def convert_hrsa_to_clinics(input_csv, output_json):
 
     print(f"✅ Wrote {len(clinics)} clinics to {output_json}")
 
-# ✅ Run the conversion
-convert_hrsa_to_clinics("Health_Center_Service_Delivery_and_LookAlike_Sites.csv", "clinics.json")
+# 🔧 Kick off the script (input: raw CSV from HRSA, output: ready-to-use JSON)
+convert_hrsa_to_clinics(
+    "Health_Center_Service_Delivery_and_LookAlike_Sites.csv",
+    "clinics.json"
+)
