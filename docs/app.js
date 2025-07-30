@@ -128,13 +128,13 @@ function locateUser() {
   );
 }
 
-// ✅ Safe AI assistant fetch (calls Replit backend proxy)
+// ✅ Safe AI assistant fetch (calls Render backend proxy)
 async function askAI(prompt) {
   const chatBox = document.getElementById("aiResponse");
   chatBox.innerText = "🤖 Thinking...";
 
   try {
-    const response = await fetch("https://clinic-finder-ai-proxy.salawaiazhagan.repl.co/ask", {
+    const response = await fetch("https://clinic-finder-backend-s2pv.onrender.com/ask", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
