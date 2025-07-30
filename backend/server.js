@@ -3,10 +3,10 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 
-// ✅ Use dynamic fetch import (safe for all Node versions on Render)
+// ✅ Use dynamic import for node-fetch (compatible with all Node versions)
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-require("dotenv").config(); // Optional for local dev
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,12 +27,12 @@ try {
   console.error("❌ Failed to load clinic data:", err);
 }
 
-// ✅ Root route
+// ✅ Sanity check route
 app.get("/", (req, res) => {
   res.send("✅ Backend is running. Visit /api/clinics to get clinic data.");
 });
 
-// ✅ Clinic API route
+// ✅ Serve static clinic data
 app.get("/api/clinics", (req, res) => {
   res.json(clinicsData);
 });
@@ -43,7 +43,8 @@ app.post("/ask", async (req, res) => {
   const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
   if (!OPENAI_API_KEY) {
-    return res.status(500).json({ error: "Missing OpenAI API key" });
+    console.warn("⚠️ No OpenAI API key configured");
+    return res.json({ answer: "🛠️ Work in progress. AI support not yet configured." });
   }
 
   try {
@@ -67,9 +68,15 @@ app.post("/ask", async (req, res) => {
 
     const data = await openaiRes.json();
 
+    // Handle OpenAI error (e.g., quota exceeded)
+    if (data.error) {
+      console.error("❌ OpenAI error:", data.error.message || data.error);
+      return res.json({ answer: `⚠️ AI error: ${data.error.message || "Something went wrong"}` });
+    }
+
     if (!data.choices || !data.choices.length) {
       console.error("❌ No choices returned:", data);
-      return res.status(500).json({ error: "No response from AI" });
+      return res.json({ answer: "⚠️ No AI response available." });
     }
 
     const answer = data.choices[0].message.content;
@@ -77,11 +84,11 @@ app.post("/ask", async (req, res) => {
 
   } catch (err) {
     console.error("❌ Error in /ask route:", err);
-    res.status(500).json({ error: "AI assistant failed" });
+    res.json({ answer: "🛠️ Work in progress. The assistant is currently unavailable." });
   }
 });
 
-// ✅ Start server
+// ✅ Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);
 });
